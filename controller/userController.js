@@ -3,8 +3,21 @@ const User = require("../models/User");
 const getUsers = async (req, res, next) => {
   try {
     //query parameter
+    const options = {};
 
-    const result = await User.find();
+    if (Object.keys(req.query).length) {
+      const { sortByFirstName, limit } = req.query;
+
+      //set up pagination
+      if (limit) options.limit = limit;
+
+      if (sortByFirstName)
+        options.sort = {
+          firstName: sortByFirstName === "asc" ? 1 : -1,
+        };
+    }
+
+    const result = await User.find({}, {}, options);
     res.status(200).setHeader("Content-Type", "application/json").json(result);
   } catch (error) {
     throw new Error(`Error getting all users:${error.message}`);
